@@ -51,7 +51,7 @@ public class ObjectRekognition {
 	public static void main(String[] args) throws IOException,InterruptedException, JMSException {
 
 		// Creating a File object that represents the disk file.
-		PrintStream outputStream = new PrintStream(new File("C:\\Nancy\\NJIT\\SEM4\\CS643\\Programming Assignment\\ec2-1-output.txt"));
+		PrintStream outputStream = new PrintStream(new File("\\ec2-1-output.txt"));
 
 		// Assign o to output stream
 		System.setOut(outputStream);
