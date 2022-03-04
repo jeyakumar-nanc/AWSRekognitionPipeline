@@ -46,15 +46,15 @@ import javax.jms.TextMessage;
 
 public class TextRekognition {
 
-	static String bucketName = "cs643-njit-project1";   
-	static String sqsQueueUrl = "https://sqs.us-east-1.amazonaws.com/093063614472/CS643-RekognitionQueue";
-	static String sqsQueueName = "CS643-RekognitionQueue1.fifo";
+	static String bucketName = "<bucketname>";   
+	
+	static String sqsQueueName = "<queue name>.fifo";
 
 	public static void main(String[] args) throws JMSException, InterruptedException , IOException {
 
-    Session session = null;
-    MessageConsumer consumer = null;
-    SQSConnection connection = null;
+    	Session session = null;
+    	MessageConsumer consumer = null;
+    	SQSConnection connection = null;
 		try {
 
 			// Creating a File object that represents the disk file.
@@ -113,14 +113,12 @@ public class TextRekognition {
 					+ "such as not being able to access the network.");
 			System.out.println("Error Message: " + ace.getMessage());
 		}
-   finally {
-            // To close resources etc
-        	 if(consumer!=null) consumer.close();
-           
-   	        if(session != null)session.close();
-            if(connection != null)connection.close();
-
-        }
+   		finally {
+            		// To close resources etc
+        	 	if(consumer!=null) consumer.close();           
+   	        	if(session != null)session.close();
+            		if(connection != null)connection.close();
+        	}
 	}
 
 
