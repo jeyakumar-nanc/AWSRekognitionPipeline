@@ -1,6 +1,12 @@
 package cloudcomputing;
+//package com.example.AWSImageRekognitionPipeline;
 
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -42,19 +48,29 @@ public class TextRekognition {
 
 	static String bucketName = "cs643-njit-project1";   
 	static String sqsQueueUrl = "https://sqs.us-east-1.amazonaws.com/093063614472/CS643-RekognitionQueue";
-	static String sqsQueueName = "CS643-RekognitionQueue.fifo";
+	static String sqsQueueName = "CS643-RekognitionQueue1.fifo";
 
-	public static void main(String[] args) throws JMSException, InterruptedException {
-		
+	public static void main(String[] args) throws JMSException, InterruptedException , IOException {
+
+    Session session = null;
+    MessageConsumer consumer = null;
+    SQSConnection connection = null;
 		try {
-			
+
+			// Creating a File object that represents the disk file.
+			//PrintStream outputStream = new PrintStream(new File("\\Programming Assignment\\ec2-2-output.txt"));
+			PrintStream outputStream = new PrintStream(new File("/tmp/ec2-2-output.txt"));
+
+			// Assign o to output stream
+			System.setOut(outputStream);
+
 			System.out.println("Initializing SQS connection..");
 			// Create a new connection factory with all defaults (credentials and region) set automatically
 			SQSConnectionFactory connectionFactory = new SQSConnectionFactory(new ProviderConfiguration(), AmazonSQSClientBuilder.defaultClient());
 
 			// Create the connection
-			SQSConnection connection = connectionFactory.createConnection();
-			
+			 connection = connectionFactory.createConnection();
+
 			// Get the wrapped client
 			AmazonSQSMessagingClientWrapper client = connection.getWrappedAmazonSQSClient();
 
@@ -66,13 +82,13 @@ public class TextRekognition {
 			}
 
 			// Create the nontransacted session with AUTO_ACKNOWLEDGE mode
-			Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-			
+			 session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
 			// Create a queue identity and specify the queue name to the session
 			Queue queue = session.createQueue(sqsQueueName);
 
 			//Create a consumer for the 'MyQueue'.
-			MessageConsumer consumer = session.createConsumer(queue);
+			 consumer = session.createConsumer(queue);
 
 			// Instantiate and set the message listener for the consumer.
 			consumer.setMessageListener(new Listener(connection,bucketName));
@@ -97,6 +113,14 @@ public class TextRekognition {
 					+ "such as not being able to access the network.");
 			System.out.println("Error Message: " + ace.getMessage());
 		}
+   finally {
+            // To close resources etc
+        	 if(consumer!=null) consumer.close();
+           
+   	        if(session != null)session.close();
+            if(connection != null)connection.close();
+
+        }
 	}
 
 
@@ -107,7 +131,7 @@ class Listener implements MessageListener{
 
 	SQSConnection connection = null;
 	static String bucketName;
-	
+
 	public Listener(SQSConnection conn, String bucket){		
 		this.connection = conn;
 		this.bucketName = bucket;
@@ -118,18 +142,18 @@ class Listener implements MessageListener{
 		try {
 			// TODO Auto-generated method stub
 			AWSCredentials credentials = null;
-			
+
 			System.out.println("Initializing S3 connection..");
-			
+
 			AmazonS3 s3Client = InitAWSS3(credentials);
-			
+
 			System.out.println("Fetching S3 objects..");
 			List<S3ObjectSummary> objectSummary = FetchS3Objects(s3Client);
 
 			for (S3ObjectSummary obj : objectSummary) 
 			{
 				String msg = (String) ((TextMessage) message).getText().toString();
-				
+
 				if(!msg.equals("-1")) {
 					if(obj.getKey().contains(msg)){
 						System.out.println("Index of the image " + msg + " found.. Proceeding to detect texts in the image..");
@@ -137,11 +161,12 @@ class Listener implements MessageListener{
 					}
 				}
 				else {
-					System.out.println("Closing the connection..");
-					connection.close();
+        break;
+					//System.out.println("Closing the connection..");
+					
 				}
-				
-				
+
+
 			}
 		} catch (JMSException e) {
 			// TODO Auto-generated catch block
@@ -197,17 +222,20 @@ class Listener implements MessageListener{
 			DetectTextResult result = rekognitionClient.detectText(request);
 			List<TextDetection> textDetections = result.getTextDetections();
 
-			
-			if(!textDetections.isEmpty()) {
-				System.out.println("Detected lines and words for " + img);
-				for (TextDetection text: textDetections) {
 
-					System.out.println("Detected: " + text.getDetectedText());
-					System.out.println("Confidence: " + text.getConfidence().toString());
-					System.out.println("Id : " + text.getId());
-					System.out.println("Parent Id: " + text.getParentId());
-					System.out.println("Type: " + text.getType());
-					System.out.println();
+			if(!textDetections.isEmpty()) {
+				
+				for (TextDetection text: textDetections) {
+					if(text.getConfidence()>80)
+					{
+           System.out.println("Detected lines and words for " + img);
+						System.out.println("Detected: " + text.getDetectedText());
+						System.out.println("Confidence: " + text.getConfidence().toString());
+						System.out.println("Id : " + text.getId());
+						System.out.println("Parent Id: " + text.getParentId());
+						System.out.println("Type: " + text.getType());
+						System.out.println();
+					}
 				}				
 			}
 
