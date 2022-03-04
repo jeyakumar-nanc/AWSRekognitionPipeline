@@ -44,9 +44,9 @@ import javax.jms.TextMessage;
 public class ObjectRekognition {
 
 
-	static String bucketName = "cs643-njit-project1";   
-	static String sqsQueueUrl = "https://sqs.us-east-1.amazonaws.com/093063614472/CS643-RekognitionQueue";
-	static String sqsQueueName = "CS643-RekognitionQueue1.fifo";
+	static String bucketName = "<bucketname>";   
+	
+	static String sqsQueueName = "<queuename>.fifo";
 
 	public static void main(String[] args) throws IOException,InterruptedException, JMSException {
 
