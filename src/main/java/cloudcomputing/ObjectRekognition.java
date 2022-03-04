@@ -1,5 +1,5 @@
-package cloudcomputing;
-//package com.example.AWSImageRekognitionPipeline;
+//package cloudcomputing;
+package com.example.AWSImageRekognitionPipeline;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,12 +46,12 @@ public class ObjectRekognition {
 
 	static String bucketName = "cs643-njit-project1";   
 	static String sqsQueueUrl = "https://sqs.us-east-1.amazonaws.com/093063614472/CS643-RekognitionQueue";
-	static String sqsQueueName = "CS643-RekognitionQueue.fifo";
+	static String sqsQueueName = "CS643-RekognitionQueue1.fifo";
 
 	public static void main(String[] args) throws IOException,InterruptedException, JMSException {
 
 		// Creating a File object that represents the disk file.
-		PrintStream outputStream = new PrintStream(new File("\\ec2-1-output.txt"));
+		PrintStream outputStream = new PrintStream(new File("/tmp/ec2-1-output.txt"));
 
 		// Assign o to output stream
 		System.setOut(outputStream);
@@ -126,6 +126,15 @@ public class ObjectRekognition {
 					+ "such as not being able to access the network.");
 			System.out.println("Error Message: " + ace.getMessage());
 		}
+   
+   finally {
+            // To close resources etc
+        	 
+           
+   	        if(session != null)session.close();
+            if(connection != null)connection.close();
+
+        }
 	}
 
 
@@ -205,3 +214,4 @@ public class ObjectRekognition {
 	}
 
 }
+
