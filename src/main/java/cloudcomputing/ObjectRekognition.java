@@ -127,14 +127,11 @@ public class ObjectRekognition {
 			System.out.println("Error Message: " + ace.getMessage());
 		}
    
-   finally {
-            // To close resources etc
-        	 
-           
-   	        if(session != null)session.close();
-            if(connection != null)connection.close();
-
-        }
+   		finally {
+            		// To close resources etc        	            
+   	        	if(session != null)session.close();
+            		if(connection != null)connection.close();
+        	}
 	}
 
 
@@ -198,7 +195,7 @@ public class ObjectRekognition {
 					numbers.put(label.getName(), Math.round(label.getConfidence()));
 					System.out.print("Label: " + label.getName() + " ,");
 					System.out.print("Confidence: " + label.getConfidence().toString() + "\n");
-					System.out.println("Sending msg to SQS..CS643-RekognitionQueue");
+					System.out.println("Sending msg to SQS..RekognitionQueue");
 					TextMessage message = session.createTextMessage(img);
 					message.setStringProperty("JMSXGroupID", "Default");
 					producer.send(message);
